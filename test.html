@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://fb.me/react-0.11.2.js"></script>
+<!--
+<script src="http://fb.me/react-0.11.2.min.js"></script>
+-->
+<script src="http://fb.me/JSXTransformer-0.11.2.js"></script>
+
+<div id="content"></div>
+
+<script src="prop-validation-mixin.js"></script>
+<script type="text/jsx">
+/** @jsx React.DOM */
+
+var Root = React.createClass({
+  mixins: [PropValidationMixin],
+  render: function() {
+    return <div>Hello {this.props.name}!</div>;
+  }
+});
+
+React.renderComponent(<Root name="ReactJS" />, document.getElementById('content'));
+
+</script>
+</head>
+<body>
+</body>
+</html>
