@@ -12,6 +12,10 @@ var IS_DEV_MODE = (function() {
   return false;  // should never happen, but play it safe.
 })();
 
+function err(message) {
+  return Error('PropValidationMixin: ' + message);
+}
+
 /**
  * Mix this in to a component to check that all its props are also in propTypes.
  *
@@ -29,7 +33,7 @@ var PropValidationMixin = {
     var type = component._descriptor.type;
     var componentName = type.displayName;
     if (!('propTypes' in type)) {
-      throw Error('PropValidationMixin: Component ' + componentName + ' does not have propTypes');
+      throw err('Component ' + componentName + ' does not have propTypes');
     }
     var propTypes = type.propTypes;
 
@@ -39,19 +43,13 @@ var PropValidationMixin = {
     }
 
     this.props = new Proxy(rawProps, {
-      get: function(obj, prop) {
-        if (prop == 'ref') {
-          // ... what is this?
-        } else {
-          if (!(prop in propTypes)) {
-            console.warn('Accessing property', prop, 'in', component,
-                         'which is not declared in its propTypes.');
-          } else {
-            console.log('Validated', prop);
-          }
+      get: function(obj, prop, receiver) {
+        if (!(prop in propTypes)) {
+          throw err('Tried to access props.' + prop + ', which is not ' +
+                    'declared in ' + componentName + '.propTypes');
         }
 
-        return rawProps[prop];
+        return obj[prop];
       }
     });
 
@@ -66,10 +64,5 @@ return IS_DEV_MODE ? PropValidationMixin : {};
 
 /*
 Tests to write:
-- In dev mode, not specifying propTypes is an error
-- In dev mode, accessing a prop not in propTypes is an error
-- In dev mode, accessing only props in propTypes is OK.
-- In dev mode, you can use refs.
-
 - In prod mode, all of the above are OK.
 */
